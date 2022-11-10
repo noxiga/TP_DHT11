@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>Login</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+    <script src="https://canvasjs.com/assets/script/jquery.canvasjs.min.js"></script>
+    <style>
+        .form-border{
+        border:2px solid #CCCCCC ;
+        padding:10px 30px 10px 30px;
+        border-radius:20px;
+        margin:50px auto;
+        }
+    </style>
+    <script>
+        var dataPoints = ['Temperature'];
+        var dataPoints2 = ['Humidite'];
+        var options = {
+            animationEnabled: true,
+            theme: "light2",
+            title: {
+                text: "SNIR - DHT11 measurements"
+            },
+            toolTip: {
+                shared: true
+            },
+            axisX: {
+                valueFormatString: "DD-MMM-YYYY / HH:mm:ss",
+            },
+            axisY: {
+                title: "T°C",
+                titleFontSize: 24,
+                lineColor: "#4F81BC",
+                tickColor: "#4F81BC"
+            },
+            axisY2: {
+                title: "H%",
+                titleFontSize: 24,
+                lineColor: "#C0504E",
+                tickColor: "#C0504E"
+            },
+            data: [
+                {
+                type: "spline",
+                name: "Temperature",
+                showInLegend: true,
+                yValueFormatString: "#,## °C",
+                dataPoints: dataPoints
+            },
+            {
+                type: "spline",  
+                name: "Humidite",
+                showInLegend: true,
+                yValueFormatString: "#,##.# %",
+                dataPoints2: dataPoints2
+            }]
+        };
+
+        $(function()
+        {
+            setInterval(ajaxCall, 3000); // ajaxCall sera exécuté toutes les 3s
+        });
+
+        function ajaxCall()
+        {
+            $.ajax({
+                url : 'PHP/read.php',
+                type : 'POST',
+                dataType : 'JSON',
+                success : handleResponse ,
+                error : function(resultat, statut, erreur){ alert(resultat); }
+            });
+        }
+
+        // Un exemple de <JSON data> retourné par le script read.php
+        //{"message":"OK","mesures":[{"Id":"9","Temperature":"19.7","Humidite":"63.3","Date":"2022-10-02 10:55:50]}
+        
+        function handleResponse(jsonResponse) {
+        // On supprime toutes les anciennes mesures
+            while(dataPoints.length > 0) {
+                dataPoints.pop();
+            }
+            // on ajoute au tableau les mesures
+            for (var i = 0; i < jsonResponse.mesures.length; i++) {
+            //alert(jsonResponse.mesures[i].Temperature);
+                dataPoints.push({
+                    x: new Date(jsonResponse.mesures[i].Date),
+                    y: parseFloat(jsonResponse.mesures[i].Temperature),
+                    y2: parseFloat(jsonResponse.mesures[i].Humidite)
+                });
+            }
+            $("#chartContainer").CanvasJSChart(options);
+        }
+    </script>
+</head>
+<body>
+    <div class="container">
+        <div id="chartContainer"></div>
+    </div>
+</body>
+</html>
