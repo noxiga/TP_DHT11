@@ -4,8 +4,8 @@
 #include "myHttpClient.h"
 
 #ifndef STASSID
-#define STASSID "Speak english please"
-#define STAPSK "reliable"
+#define STASSID "######"" // nom du réseau
+#define STAPSK "#######" // mot de passe du réseau
 #endif
 
 using namespace std;
@@ -43,7 +43,7 @@ void setup()
   lcd -> allumeEcran() ;
   lcd -> activeRetroEclairage();
 
-  http = new myHttpClient("http://192.168.237.17/DHT11/PHP/register.php");
+  http = new myHttpClient("http://########/DHT11/PHP/register.php"); // adresse IP du PC qui contient les fichiers à la place de #######
 }
 
 void loop()
